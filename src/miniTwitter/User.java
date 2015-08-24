@@ -10,7 +10,7 @@ public interface User {
 
 	public List<SingleUser> getFollowing();
 
-	public List<String> getNewsfeed(); 
+	public List<TextTweet> getNewsfeed(); 
 	
 	
 	

@@ -40,6 +40,7 @@ public class AdminPanel {
 	
 	private List<User> userList;
 	private static AdminPanel instance = null;
+	private JButton btnUserView;
 	
 	/**
 	 * Create the application.
@@ -74,8 +75,38 @@ public class AdminPanel {
 	}
 	
 	
+	private void startUserView() {
+		
+		
+		DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)userTree.getLastSelectedPathComponent();
+        
+        if (currentNode == null) {
+        	lblMessage.setText("Please select a user from the list");
+        	return;
+        }
+        
+        Object nodeInfo = currentNode.getUserObject();
+        	
+        if (nodeInfo instanceof GroupUser) {
+        	lblMessage.setText("Please select a user from the list");
+        	return;
+    	}
+    	else if (nodeInfo instanceof SingleUser) {
+    		
+    		UserPanel.getInstance((SingleUser) nodeInfo);
+    		
+    		List<UserPanel> lup = UserPanel.getUserPanelList();
+    		System.out.println(lup.size());
+    		
+    		//UserPanel up = new UserPanel((SingleUser) nodeInfo);
+    		
+    	}
+        
+        
+	}
 	
-	private void AddNewUser() {
+	
+	private void addNewUser() {
 				
 		if (!ValidateTextBox(txtboxUserId, "an user")) {
 			return;
@@ -106,12 +137,9 @@ public class AdminPanel {
 
 		
 	}
+
 	
-	private void setmessage(String s) {
-		lblMessage.setText(s);
-	}
-	
-	private void AddNewGroup() {
+	private void addNewGroup() {
 	
 		if (!ValidateTextBox(txtboxGroupId, "a group")) {
 			return;
@@ -157,7 +185,6 @@ public class AdminPanel {
         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)userTree.getLastSelectedPathComponent();
         TreePath parentPath = userTree.getSelectionPath();
         
-        
         if (parentPath == null) {
             parentNode = rootNode;
         } else {
@@ -170,15 +197,9 @@ public class AdminPanel {
         	else if (nodeInfo instanceof GroupUser) {
         		parentNode = (DefaultMutableTreeNode) (parentPath.getLastPathComponent());
         	}
-        		
-        	
-        	System.out.println(nodeInfo.getClass());
-        	
-
+     
         }
-        
-        //lblMessage.setText(parentNode);
- 
+      
         return addObject(parentNode, child, true);
     }
 	
@@ -223,7 +244,7 @@ public class AdminPanel {
 		JButton btnAddNewUser = new JButton("Add user");
 		btnAddNewUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				AddNewUser();
+				addNewUser();
 			}
 		});
 		btnAddNewUser.setBounds(599, 30, 104, 23);
@@ -268,7 +289,7 @@ public class AdminPanel {
 		btnAddNewGroup = new JButton("Add group");
 		btnAddNewGroup.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				AddNewGroup();
+				addNewGroup();
 			}
 		});
 		btnAddNewGroup.setBounds(599, 77, 104, 23);
@@ -279,5 +300,14 @@ public class AdminPanel {
 		lblMessage.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
 		lblMessage.setBounds(335, 126, 368, 20);
 		frmAdminPanel.getContentPane().add(lblMessage);
+		
+		btnUserView = new JButton("User View");
+		btnUserView.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				startUserView();
+			}
+		});
+		btnUserView.setBounds(452, 175, 89, 23);
+		frmAdminPanel.getContentPane().add(btnUserView);
 	}
 }

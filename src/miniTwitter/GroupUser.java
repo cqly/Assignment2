@@ -8,7 +8,7 @@ public class GroupUser implements User {
 	private String groupID;
 	private List<SingleUser> followers;
 	private List<SingleUser> following;
-	private List<String> newsfeed;
+	private List<TextTweet> newsfeed;
 	private List<User> userList;
 	
 	public GroupUser(String groupId) {
@@ -16,14 +16,13 @@ public class GroupUser implements User {
 		this.groupID = groupId;
 		followers = new ArrayList<SingleUser>();
 		following = new ArrayList<SingleUser>();
-		newsfeed = new ArrayList<String>();
+		newsfeed = new ArrayList<TextTweet>();
 		userList = new ArrayList<User>();
 	}
 	
 	@Override
 	public String getID() {
-		// TODO Auto-generated method stub
-		return null;
+		return groupID;
 	}
 
 	@Override
@@ -39,7 +38,7 @@ public class GroupUser implements User {
 	}
 
 	@Override
-	public List<String> getNewsfeed() {
+	public List<TextTweet> getNewsfeed() {
 		// TODO Auto-generated method stub
 		return null;
 	}

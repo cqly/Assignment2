@@ -8,13 +8,17 @@ public class SingleUser implements User {
 	private String userId;
 	private List<SingleUser> followers;
 	private List<SingleUser> following;
-	private List<String> newsfeed;
+	private List<TextTweet> newsfeed;
 	
 	public SingleUser(String userId) {
 		this.userId = userId;
 		followers = new ArrayList<SingleUser>();
 		following = new ArrayList<SingleUser>();
-		newsfeed = new ArrayList<String>();
+		newsfeed = new ArrayList<TextTweet>();
+		
+		newsfeed.add(new TextTweet(this, "asdfsdf"));
+		newsfeed.add(new TextTweet(this, "asdfsdfgdfdf"));
+		newsfeed.add(new TextTweet(this, "asdfshrttydf"));
 	}
 	
 	public void addFollower(SingleUser user) {
@@ -33,18 +37,25 @@ public class SingleUser implements User {
 		return following;
 	}
 
-
-	public List<String> getNewsfeed() {
+	public List<TextTweet> getNewsfeed() {
 		return newsfeed;
 	}
+	
 
-	public void setNewsfeed(List<String> newsfeed) {
+	public void setNewsfeed(List<TextTweet> newsfeed) {
 		this.newsfeed = newsfeed;
 	}
 	
 	public String toString() {
 	    return this.userId;
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		
+		User user = (User) o;		        
+        return this.userId.equalsIgnoreCase(user.getID());
+    }
 		
 	
 }
