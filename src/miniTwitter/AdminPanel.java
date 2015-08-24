@@ -21,7 +21,14 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class AdminPanel {
+import java.util.Observable;
+
+import javax.swing.JPanel;
+import javax.swing.JEditorPane;
+import java.awt.Button;
+
+
+public class AdminPanel extends Observable {
 
 	private JFrame frmAdminPanel;
 	private JTextField txtboxUserId;
@@ -41,6 +48,11 @@ public class AdminPanel {
 	private List<User> userList;
 	private static AdminPanel instance = null;
 	private JButton btnUserView;
+	private JLabel lblDfrgyertyer;
+	private JButton btnNewButton;
+	private JButton btnShowTotalGroups;
+	private JButton btnTotalMessages;
+	private JButton btnNumber;
 	
 	/**
 	 * Create the application.
@@ -49,6 +61,7 @@ public class AdminPanel {
 		initialize();
 		userList = new ArrayList<User>();
 		frmAdminPanel.setVisible(true);
+		
 	}
 	
 	public static AdminPanel getInstance()
@@ -153,6 +166,16 @@ public class AdminPanel {
 		txtboxGroupId.requestFocus();
 	}
 	
+	public List<User> getAllUsers() {
+		return userList;
+	}
+	
+	private void updateUserNewsFeed(User user, TextTweet tweet) {
+		
+		for (User u : user.getFollowers()) {
+			u.postTextTweet(tweet);
+		}
+	}
 
 	
 	class MyTreeModelListener implements TreeModelListener {
@@ -231,8 +254,9 @@ public class AdminPanel {
 	 */
 	private void initialize() {
 		frmAdminPanel = new JFrame();
+		frmAdminPanel.setResizable(false);
 		frmAdminPanel.setTitle("Admin Panel");
-		frmAdminPanel.setBounds(100, 100, 729, 486);
+		frmAdminPanel.setBounds(100, 100, 809, 551);
 		frmAdminPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAdminPanel.getContentPane().setLayout(null);
 						
@@ -247,16 +271,16 @@ public class AdminPanel {
 				addNewUser();
 			}
 		});
-		btnAddNewUser.setBounds(599, 30, 104, 23);
+		btnAddNewUser.setBounds(666, 46, 127, 23);
 		frmAdminPanel.getContentPane().add(btnAddNewUser);
 		
 		txtboxUserId = new JTextField();
-		txtboxUserId.setBounds(434, 31, 143, 20);
+		txtboxUserId.setBounds(457, 47, 180, 20);
 		frmAdminPanel.getContentPane().add(txtboxUserId);
 		txtboxUserId.setColumns(10);
 		
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 0, 325, 437);
+		scrollPane.setBounds(0, 0, 325, 523);
 		frmAdminPanel.getContentPane().add(scrollPane);
 		
 		userTree = new JTree(treeModel);
@@ -271,18 +295,22 @@ public class AdminPanel {
 		testLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		scrollPane.setColumnHeaderView(testLabel);
 		
+		lblDfrgyertyer = new JLabel("    ");
+		lblDfrgyertyer.setVerticalAlignment(SwingConstants.TOP);
+		scrollPane.setRowHeaderView(lblDfrgyertyer);
+		
 		lblUserId = new JLabel("User ID:");
 		lblUserId.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
-		lblUserId.setBounds(335, 34, 75, 14);
+		lblUserId.setBounds(372, 48, 75, 14);
 		frmAdminPanel.getContentPane().add(lblUserId);
 		
 		lblGroupId = new JLabel("Group ID:");
 		lblGroupId.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
-		lblGroupId.setBounds(335, 79, 89, 14);
+		lblGroupId.setBounds(372, 93, 89, 14);
 		frmAdminPanel.getContentPane().add(lblGroupId);
 		
 		txtboxGroupId = new JTextField();
-		txtboxGroupId.setBounds(434, 78, 143, 20);
+		txtboxGroupId.setBounds(457, 92, 180, 20);
 		frmAdminPanel.getContentPane().add(txtboxGroupId);
 		txtboxGroupId.setColumns(10);
 		
@@ -292,13 +320,13 @@ public class AdminPanel {
 				addNewGroup();
 			}
 		});
-		btnAddNewGroup.setBounds(599, 77, 104, 23);
+		btnAddNewGroup.setBounds(666, 91, 127, 23);
 		frmAdminPanel.getContentPane().add(btnAddNewGroup);
 		
 		lblMessage = new JLabel("asdf");
 		lblMessage.setForeground(Color.RED);
 		lblMessage.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
-		lblMessage.setBounds(335, 126, 368, 20);
+		lblMessage.setBounds(372, 139, 368, 20);
 		frmAdminPanel.getContentPane().add(lblMessage);
 		
 		btnUserView = new JButton("User View");
@@ -307,7 +335,49 @@ public class AdminPanel {
 				startUserView();
 			}
 		});
-		btnUserView.setBounds(452, 175, 89, 23);
+		btnUserView.setBounds(374, 225, 210, 40);
 		frmAdminPanel.getContentPane().add(btnUserView);
+		
+		btnNewButton = new JButton("Total users");
+		btnNewButton.setBounds(372, 374, 189, 40);
+		frmAdminPanel.getContentPane().add(btnNewButton);
+		
+		btnShowTotalGroups = new JButton("Total groups");
+		btnShowTotalGroups.setBounds(583, 374, 189, 40);
+		frmAdminPanel.getContentPane().add(btnShowTotalGroups);
+		
+		btnTotalMessages = new JButton("Total messages");
+		btnTotalMessages.setBounds(372, 442, 189, 40);
+		frmAdminPanel.getContentPane().add(btnTotalMessages);
+		
+		btnNumber = new JButton("Total positive posts");
+		btnNumber.setBounds(583, 442, 189, 40);
+		frmAdminPanel.getContentPane().add(btnNumber);
+		
+		JLabel lblAddNewUser = new JLabel("Add new user or group");
+		lblAddNewUser.setForeground(new Color(0, 0, 128));
+		lblAddNewUser.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
+		lblAddNewUser.setBounds(349, 10, 368, 20);
+		frmAdminPanel.getContentPane().add(lblAddNewUser);
+		
+		JLabel lblClickToOpen = new JLabel("Click to open user window");
+		lblClickToOpen.setForeground(new Color(0, 0, 128));
+		lblClickToOpen.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
+		lblClickToOpen.setBounds(349, 183, 368, 20);
+		frmAdminPanel.getContentPane().add(lblClickToOpen);
+		
+		JLabel lblUserStatistics = new JLabel("User statistics");
+		lblUserStatistics.setForeground(new Color(0, 0, 128));
+		lblUserStatistics.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
+		lblUserStatistics.setBounds(349, 300, 368, 20);
+		frmAdminPanel.getContentPane().add(lblUserStatistics);
+		
+		JLabel label = new JLabel("asdf");
+		label.setForeground(Color.RED);
+		label.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
+		label.setBounds(391, 331, 368, 20);
+		frmAdminPanel.getContentPane().add(label);
 	}
+
+
 }

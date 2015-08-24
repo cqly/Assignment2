@@ -6,13 +6,15 @@ public interface User {
 	
 	public String getID();
 
-	public List<SingleUser> getFollowers();
+	public List<User> getFollowers();
 
-	public List<SingleUser> getFollowing();
+	public List<User> getFollowing();
 
 	public List<TextTweet> getNewsfeed(); 
 	
+	public void postTextTweet(TextTweet t);
 	
+	public void addFollower(User u);
 	
 	
 	

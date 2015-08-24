@@ -6,16 +6,16 @@ import java.util.List;
 public class GroupUser implements User {
 
 	private String groupID;
-	private List<SingleUser> followers;
-	private List<SingleUser> following;
+	private List<User> followers;
+	private List<User> following;
 	private List<TextTweet> newsfeed;
 	private List<User> userList;
 	
 	public GroupUser(String groupId) {
 		
 		this.groupID = groupId;
-		followers = new ArrayList<SingleUser>();
-		following = new ArrayList<SingleUser>();
+		followers = new ArrayList<User>();
+		following = new ArrayList<User>();
 		newsfeed = new ArrayList<TextTweet>();
 		userList = new ArrayList<User>();
 	}
@@ -26,13 +26,13 @@ public class GroupUser implements User {
 	}
 
 	@Override
-	public List<SingleUser> getFollowers() {
+	public List<User> getFollowers() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<SingleUser> getFollowing() {
+	public List<User> getFollowing() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -53,6 +53,18 @@ public class GroupUser implements User {
 	
 	public String toString() {
 		return "[GROUP] " + groupID;
+	}
+
+	@Override
+	public void postTextTweet(TextTweet t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addFollower(User u) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

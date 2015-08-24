@@ -6,19 +6,16 @@ import java.util.List;
 public class SingleUser implements User {
 	
 	private String userId;
-	private List<SingleUser> followers;
-	private List<SingleUser> following;
+	private List<User> followers;
+	private List<User> following;
 	private List<TextTweet> newsfeed;
 	
 	public SingleUser(String userId) {
 		this.userId = userId;
-		followers = new ArrayList<SingleUser>();
-		following = new ArrayList<SingleUser>();
+		followers = new ArrayList<User>();
+		following = new ArrayList<User>();
 		newsfeed = new ArrayList<TextTweet>();
 		
-		newsfeed.add(new TextTweet(this, "asdfsdf"));
-		newsfeed.add(new TextTweet(this, "asdfsdfgdfdf"));
-		newsfeed.add(new TextTweet(this, "asdfshrttydf"));
 	}
 	
 	public void addFollower(SingleUser user) {
@@ -29,11 +26,11 @@ public class SingleUser implements User {
 		return userId;
 	}
 
-	public List<SingleUser> getFollowers() {
+	public List<User> getFollowers() {
 		return followers;
 	}
 
-	public List<SingleUser> getFollowing() {
+	public List<User> getFollowing() {
 		return following;
 	}
 
@@ -56,6 +53,20 @@ public class SingleUser implements User {
 		User user = (User) o;		        
         return this.userId.equalsIgnoreCase(user.getID());
     }
+
+	@Override
+	public void postTextTweet(TextTweet tweet) {
+		this.newsfeed.add(tweet);
 		
+	}
 	
+	public void followUser(User user) {
+		this.following.add(user);
+		user.addFollower(this);
+		
+	}
+		
+	public void addFollower(User user) {
+		this.followers.add(user);
+	}
 }
