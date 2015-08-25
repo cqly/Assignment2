@@ -64,6 +64,21 @@ public class AdminPanel extends Observable {
 		
 	}
 	
+	private void fordebug() {
+		System.out.println(userList);
+		System.out.println("----");
+		
+		GroupUser x;
+		
+		for (User user : userList) {
+			if (user instanceof GroupUser) {
+				x = (GroupUser) user;
+				System.out.println(x.getUsersInGroup());
+			}
+				
+		}
+	}
+	
 	public static AdminPanel getInstance()
 	{
 		if (instance == null)
@@ -82,7 +97,6 @@ public class AdminPanel extends Observable {
 			return false;
 		}
 		
-		//check if user id already exist
 		
 		return true;
 	}
@@ -101,18 +115,14 @@ public class AdminPanel extends Observable {
         Object nodeInfo = currentNode.getUserObject();
         	
         if (nodeInfo instanceof GroupUser) {
-        	lblMessage.setText("Please select a user from the list");
+        	lblMessage.setText("User view is not available for group");
         	return;
     	}
     	else if (nodeInfo instanceof SingleUser) {
     		
     		UserPanel.getInstance((SingleUser) nodeInfo);
     		
-    		List<UserPanel> lup = UserPanel.getUserPanelList();
-    		System.out.println(lup.size());
-    		
-    		//UserPanel up = new UserPanel((SingleUser) nodeInfo);
-    		
+    		    		
     	}
         
         
@@ -127,6 +137,13 @@ public class AdminPanel extends Observable {
 	
 		
 		User user = new SingleUser(txtboxUserId.getText());
+		
+		//user already exists
+		if (userList.contains(user)) {
+			lblMessage.setText("This ID is already taken");
+			return;
+		}
+		
 		this.addObject(user);
 		userList.add(user);
         
@@ -159,6 +176,12 @@ public class AdminPanel extends Observable {
 		}	
 		
 		User user = new GroupUser(txtboxGroupId.getText());
+		
+		if (userList.contains(user)) {
+			lblMessage.setText("This ID is already taken");
+			return;
+		}
+		
 		this.addObject(user);
 		userList.add(user);
         
@@ -170,12 +193,36 @@ public class AdminPanel extends Observable {
 		return userList;
 	}
 	
-	private void updateUserNewsFeed(User user, TextTweet tweet) {
+
+	
+	public void updateUserNewsFeed(User sender, UserPanel senderPanel, TextTweet tweet) {
 		
-		for (User u : user.getFollowers()) {
-			u.postTextTweet(tweet);
+		//update the sender panel
+		senderPanel.update(getInstance(), null);
+		
+		List<UserPanel> uList = UserPanel.getUserPanelList();
+		List<User> followers = sender.getFollowers();
+				
+		//below act as the modified notifyObservers() method
+		for (UserPanel p : uList) {
+			
+			if (followers.contains(p.getCurrentUser())) {
+				p.getCurrentUser().postTextTweet(tweet);
+				
+				//update all the followers' panels
+				p.update(getInstance(), null);
+			}
 		}
+
 	}
+	
+	
+	
+	
+	private void displayTotalUsers() {
+		fordebug();
+	}
+
 
 	
 	class MyTreeModelListener implements TreeModelListener {
@@ -218,10 +265,20 @@ public class AdminPanel extends Observable {
         		parentNode = (DefaultMutableTreeNode) currentNode.getParent();
         	}
         	else if (nodeInfo instanceof GroupUser) {
+        		
         		parentNode = (DefaultMutableTreeNode) (parentPath.getLastPathComponent());
         	}
+        	
+        	
      
         }
+        
+        Object parentNodeInfo = parentNode.getUserObject();
+    	
+        if (parentNodeInfo instanceof GroupUser) {
+        	((GroupUser) parentNodeInfo).addUserToGroup((User) child);
+        }
+        System.out.println(parentNodeInfo);
       
         return addObject(parentNode, child, true);
     }
@@ -238,15 +295,15 @@ public class AdminPanel extends Observable {
 			parent = rootNode;
 		}
 
-		//It is key to invoke this on the TreeModel, and NOT DefaultMutableTreeNode
 		treeModel.insertNodeInto(childNode, parent, parent.getChildCount());
 
-		//Make sure the user can see the lovely new node.
+		//Make sure the user can see the new node.
 		if (shouldBeVisible) {
 			userTree.scrollPathToVisible(new TreePath(childNode.getPath()));
 		}
 		return childNode;
 	}
+	
 
 
 	/**
@@ -278,6 +335,13 @@ public class AdminPanel extends Observable {
 		txtboxUserId.setBounds(457, 47, 180, 20);
 		frmAdminPanel.getContentPane().add(txtboxUserId);
 		txtboxUserId.setColumns(10);
+		txtboxUserId.addActionListener(new ActionListener() {
+
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		       addNewUser();
+		    }
+		});
 		
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(0, 0, 325, 523);
@@ -313,6 +377,13 @@ public class AdminPanel extends Observable {
 		txtboxGroupId.setBounds(457, 92, 180, 20);
 		frmAdminPanel.getContentPane().add(txtboxGroupId);
 		txtboxGroupId.setColumns(10);
+		txtboxGroupId.addActionListener(new ActionListener() {
+
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		       addNewGroup();
+		    }
+		});
 		
 		btnAddNewGroup = new JButton("Add group");
 		btnAddNewGroup.addActionListener(new ActionListener() {
@@ -339,6 +410,11 @@ public class AdminPanel extends Observable {
 		frmAdminPanel.getContentPane().add(btnUserView);
 		
 		btnNewButton = new JButton("Total users");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				displayTotalUsers();
+			}
+		});
 		btnNewButton.setBounds(372, 374, 189, 40);
 		frmAdminPanel.getContentPane().add(btnNewButton);
 		

@@ -16,6 +16,8 @@ public interface User {
 	
 	public void addFollower(User u);
 	
+	public void followUser(User u);
+	
 	
 	
 

@@ -8,13 +8,24 @@ import java.util.Observer;
 
 import javafx.collections.SetChangeListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
+import java.awt.Font;
+import java.awt.Color;
 
 public class UserPanel implements Observer {
 
@@ -23,6 +34,8 @@ public class UserPanel implements Observer {
 	private JTextArea txtTweet;
 	private JButton btnPostTweet;
 	private JTextArea txtAreaNewsFeed;
+	private JTextArea txtAreaFollowing;
+	private JLabel lblMessage;
 	
 	private User currentUser;
 	private UserPanel currentUserPanel;
@@ -37,25 +50,36 @@ public class UserPanel implements Observer {
 		this.currentUser = user;
 		this.currentUserPanel = this;
 		initialize();
-		update();
 		frmUserView.setVisible(true);
-	}
-	
-	private void update() {
+		update(null,null);
+		updateFollowingPanel();
 		
+	}
+
+	
+	@Override
+	public void update(Observable o, Object arg) {
+
 		String msg = "";
 		
+
 		for (TextTweet tt : currentUser.getNewsfeed()) {
-			msg += tt + "\n";
-			
+			msg += "  " + tt + "\n";
 		}
-		
+
 		txtAreaNewsFeed.setText(msg);
 	}
 	
+	public void updateFollowingPanel() {
+		String following = "";
+		for (User usr : currentUser.getFollowing()) {
+			following += "  - " + usr + "\n";
+		}
+		txtAreaFollowing.setText(following);
+		
+	}
+	
 	public static UserPanel getInstance(User user) {
-		
-		
 		
 		if (!userList.contains(user)) {
 			
@@ -63,11 +87,6 @@ public class UserPanel implements Observer {
 			userList.add(user);
 			return userPanelList.get(userList.size()-1);
 		}
-		
-		//userPanelList.indexOf(arg0)
-		
-		//userPanelList.indexOf(arg0)
-		
 		
 		return null;
 	}
@@ -85,55 +104,85 @@ public class UserPanel implements Observer {
 		return userPanelList;
 	}
 	
-
-//	
-//	public boolean equals(Object o){
-//		
-//		UserPanel up = (UserPanel) o;
-//		        
-//        return this.userID.equalsIgnoreCase(up.getPanelID());
-//    }
-//	
+	
+	public boolean equals(Object o){
+		
+		UserPanel up = (UserPanel) o;
+        return this.currentUser.getID().equalsIgnoreCase(up.getCurrentUser().getID());
+    }
+	
 	
 	private void postTweet() {
 		if (!txtTweet.getText().equalsIgnoreCase("")) {
 			
-			currentUser.postTextTweet(new TextTweet(currentUser, txtTweet.getText()));
-			update();
+			TextTweet tweet = new TextTweet(currentUser, txtTweet.getText());
+			currentUser.postTextTweet(tweet);
+
+			AdminPanel.getInstance().updateUserNewsFeed(currentUser, this, tweet);
+			txtTweet.setText("");
 		}
-		
-		
 	}
 	
 	private void followUser() {
 		
 		if (txtUser.getText().equalsIgnoreCase("")) {
-			//please enter userid
+			lblMessage.setText("Please enter the user ID");
 			return;
 			
 		}
 		
 		User user = searchUser(txtUser.getText());
-//		if ( != null) {
-//			
-//		}
-//			
+		if (user != null) {
+			currentUser.followUser(user);
+			txtUser.setText("");
+			updateFollowingPanel();
+		}
+
 			
 	}
 	
 	private SingleUser searchUser(String userId) {
 		
-		//implement already follow
+		lblMessage.setText("");
 		
 		User user = new SingleUser(userId);
+		
+		//check if following yourself
+		if (user.equals(currentUser)) {
+			lblMessage.setText("You cannot follow yourself");
+			return null;
+			
+		}
+		
 		List<User> list = AdminPanel.getInstance().getAllUsers();
 		
-		if (list.contains(user)) {
-			return (SingleUser) list.get(list.indexOf(user));
-		}
-		else
+		
+		//check if already follow
+		if (currentUser.getFollowing().contains(user)) {
+			lblMessage.setText("You are currently following that user");
 			return null;
+		}
+		
+		else if (list.contains(user)) {
+			User temp = list.get(list.indexOf(user));
+			
+			//check if it is a GroupUser
+			if (temp instanceof GroupUser) {
+				lblMessage.setText("Cannot follow a group");
+				return null;
+			}
+			else {
+				return (SingleUser) list.get(list.indexOf(user));
+			}
+		}
+		else {
+			lblMessage.setText("User doesn't exist");
+			return null;
+		}
+			
 	}
+	
+	
 	
 
 	/**
@@ -141,15 +190,22 @@ public class UserPanel implements Observer {
 	 */
 	private void initialize() {
 		frmUserView = new JFrame();
-		frmUserView.setTitle("User View @" + currentUser.getID() + "");
-		frmUserView.setBounds(100, 100, 450, 300);
+		frmUserView.setTitle("@" + currentUser.getID() + " User View");
+		frmUserView.setBounds(100, 100, 749, 502);
 		frmUserView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmUserView.getContentPane().setLayout(null);
 		
 		txtUser = new JTextField();
-		txtUser.setBounds(10, 11, 86, 20);
+		txtUser.setBounds(10, 26, 223, 20);
 		frmUserView.getContentPane().add(txtUser);
 		txtUser.setColumns(10);
+		txtUser.addActionListener(new ActionListener() {
+
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		       followUser();
+		    }
+		});
 		
 		JButton btnFollowUser = new JButton("Follow User");
 		btnFollowUser.addActionListener(new ActionListener() {
@@ -157,16 +213,8 @@ public class UserPanel implements Observer {
 				followUser();
 			}
 		});
-		btnFollowUser.setBounds(155, 10, 89, 23);
+		btnFollowUser.setBounds(250, 25, 133, 23);
 		frmUserView.getContentPane().add(btnFollowUser);
-		
-		JTextArea txtAreaFollowing = new JTextArea();
-		txtAreaFollowing.setBounds(10, 42, 293, 53);
-		frmUserView.getContentPane().add(txtAreaFollowing);
-		
-		txtTweet = new JTextArea();
-		txtTweet.setBounds(25, 127, 185, 20);
-		frmUserView.getContentPane().add(txtTweet);
 		
 		btnPostTweet = new JButton("Post Tweet");
 		btnPostTweet.addActionListener(new ActionListener() {
@@ -174,30 +222,74 @@ public class UserPanel implements Observer {
 				postTweet();
 			}
 		});
-		btnPostTweet.setBounds(233, 128, 89, 23);
+		btnPostTweet.setBounds(250, 292, 133, 23);
 		frmUserView.getContentPane().add(btnPostTweet);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(418, 28, 303, 425);
+		frmUserView.getContentPane().add(scrollPane);
+		
 		txtAreaNewsFeed = new JTextArea();
-		txtAreaNewsFeed.setBounds(10, 170, 293, 81);
-		frmUserView.getContentPane().add(txtAreaNewsFeed);
+		txtAreaNewsFeed.setFont(new Font("Miriam Fixed", Font.PLAIN, 14));
+		txtAreaNewsFeed.setEditable(false);
+		txtAreaNewsFeed.setLineWrap(true);
+		scrollPane.setViewportView(txtAreaNewsFeed);
+		
+		JLabel lblTweets = new JLabel("News Feed");
+		lblTweets.setFont(new Font("Tunga", Font.PLAIN, 20));
+		lblTweets.setHorizontalAlignment(SwingConstants.CENTER);
+		scrollPane.setColumnHeaderView(lblTweets);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 88, 352, 150);
+		frmUserView.getContentPane().add(scrollPane_1);
+		
+		JLabel lblFollower = new JLabel("Currently Follow");
+		lblFollower.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
+		lblFollower.setHorizontalAlignment(SwingConstants.CENTER);
+		scrollPane_1.setColumnHeaderView(lblFollower);
+		
+		txtAreaFollowing = new JTextArea();
+		txtAreaFollowing.setEditable(false);
+		
+
+		scrollPane_1.setViewportView(txtAreaFollowing);
+		
+		lblMessage = new JLabel("asdf");
+		lblMessage.setForeground(Color.RED);
+		lblMessage.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
+		lblMessage.setBounds(10, 57, 388, 20);
+		frmUserView.getContentPane().add(lblMessage);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(10, 290, 223, 119);
+		frmUserView.getContentPane().add(scrollPane_2);
+		
+		txtTweet = new JTextArea();
+		txtTweet.setLineWrap(true);
+		KeyStroke k = KeyStroke.getKeyStroke("ENTER");
+		txtTweet.getInputMap().put(k, new AbstractAction () {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				postTweet();
+			}
+		});
+		
+		scrollPane_2.setViewportView(txtTweet);
 		
 		frmUserView.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 		    	userList.remove(currentUser);
 		    	userPanelList.remove(currentUserPanel);
-		    	
-		    	
-		    	//System.out.println(userPanelList.indexOf(currentUser));
-		    	//userPanelList.remove(userPanelList.indexOf(arg0))
+		
 		    }
 		});
 	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 }

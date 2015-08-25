@@ -1,36 +1,35 @@
 package miniTwitter;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class TextTweet implements Tweet {
 	
 	private User user;
 	private String message;
-	
+	private String time;
 	
 	public TextTweet(User user, String message) {
-		this.user = user;
-		this.message = message;
+		
+		
+		Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
+        
+        this.user = user;
+		this.message =  message;
+		this.time = sdf.format(cal.getTime());
+        
 	}
 
 	public User getUser() {
 		return user;
 	}
 
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-
 	public String getMessage() {
 		return message;
 	}
 
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	
 	public String toString() {
-		return "[" + user.getID() + "] " + message;
+		return time + " @" + user.getID() + ":  " + message;
 	}
 }

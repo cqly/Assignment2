@@ -6,17 +6,11 @@ import java.util.List;
 public class GroupUser implements User {
 
 	private String groupID;
-	private List<User> followers;
-	private List<User> following;
-	private List<TextTweet> newsfeed;
 	private List<User> userList;
 	
 	public GroupUser(String groupId) {
 		
 		this.groupID = groupId;
-		followers = new ArrayList<User>();
-		following = new ArrayList<User>();
-		newsfeed = new ArrayList<TextTweet>();
 		userList = new ArrayList<User>();
 	}
 	
@@ -27,23 +21,23 @@ public class GroupUser implements User {
 
 	@Override
 	public List<User> getFollowers() {
-		// TODO Auto-generated method stub
+		// not available for GroupUser
 		return null;
 	}
 
 	@Override
 	public List<User> getFollowing() {
-		// TODO Auto-generated method stub
+		// not available for GroupUser
 		return null;
 	}
 
 	@Override
 	public List<TextTweet> getNewsfeed() {
-		// TODO Auto-generated method stub
+		// not available for GroupUser
 		return null;
 	}
 	
-	public void addUser(User user) {
+	public void addUserToGroup(User user) {
 		userList.add(user);
 	}
 	
@@ -57,14 +51,27 @@ public class GroupUser implements User {
 
 	@Override
 	public void postTextTweet(TextTweet t) {
-		// TODO Auto-generated method stub
+		// not available for GroupUser
 		
 	}
 
 	@Override
 	public void addFollower(User u) {
-		// TODO Auto-generated method stub
+		// not available for GroupUser
 		
 	}
+
+	@Override
+	public void followUser(User u) {
+		// not available for GroupUser
+		
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		
+		User group = (User) o;		        
+        return this.groupID.equalsIgnoreCase(group.getID());
+    }
 
 }
