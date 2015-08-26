@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SingleUser implements User {
-	
+
 	private String userId;
 	private List<User> followers;
 	private List<User> following;
 	private List<Tweet> newsfeed;
 	private UserPanel userPanel;
-	
+
 	public SingleUser(String userId) {
 		this.userId = userId;
 		followers = new ArrayList<User>();
 		following = new ArrayList<User>();
 		newsfeed = new ArrayList<Tweet>();
 	}
-	
+
 	public void addFollower(SingleUser user) {
 		followers.add(user);
 	}
@@ -39,26 +39,26 @@ public class SingleUser implements User {
 	}
 
 	public String toString() {
-	    return this.userId;
+		return this.userId;
 	}
-	
+
 	@Override
 	public boolean equals(Object o){
 		User user = (User) o;		        
-        return this.userId.equalsIgnoreCase(user.getID());
-    }
+		return this.userId.equalsIgnoreCase(user.getID());
+	}
 
 	@Override
 	public void addToNewsfeed(Tweet tweet) {
 		this.newsfeed.add(tweet);
 	}
-	
-	
+
+
 	public void followUser(User user) {
 		this.following.add(user);
 		user.addFollower(this);
 	}
-		
+
 	public void addFollower(User user) {
 		this.followers.add(user);
 	}

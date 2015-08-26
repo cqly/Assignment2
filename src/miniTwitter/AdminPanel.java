@@ -45,7 +45,7 @@ public class AdminPanel {
 	private JLabel lblStat;
 	private List<User> userList;
 	private static AdminPanel instance = null;
-	
+
 	private AdminPanel() {
 		userList = new ArrayList<User>();
 		initialize();
@@ -142,54 +142,54 @@ public class AdminPanel {
 
 
 	private void displayTotalUsers() {
-		
+
 		Stats stats = new Stats();
-		
+
 		for (User user : userList)  {
 			user.accept(stats);
 		}
-		
+
 		lblStat.setText("Total number of users: " + String.valueOf(stats.getTotalSingleUser()));
 	}
-	
+
 	private void displayTotalGroups() {
-		
+
 		Stats stats = new Stats();
-		
+
 		for (User user : userList)  {
 			user.accept(stats);
-			
+
 		}
-		
+
 		lblStat.setText("Total number of groups: " + String.valueOf(stats.getTotalGroupUser()));
 	}
 
 	private void displayTotalMessages() {
-		
+
 		Stats stats = new Stats();
-		
+
 		for (Tweet t : getAllTweets()) {
 			t.accept(stats);
 		}
-		
+
 		lblStat.setText("Total messages: " + String.valueOf(stats.getTotalMessages()));
 	}
 
 	private void displayTotalPossitivePosts() {
-		
+
 		Stats stats = new Stats();
-		
+
 		for (Tweet t : getAllTweets()) {
 			t.accept(stats);
 		}
-		
+
 		lblStat.setText("Total possitive posts: " + String.valueOf(stats.getTotalPossitiveTweet()));
 	}
-	
+
 	private List<Tweet> getAllTweets() {
-		
+
 		List<Tweet> allTweet = new ArrayList<Tweet>();
-		
+
 		for (User user : userList)  {
 			for (Tweet t : user.getNewsfeed()) {
 				if (t.getUser().equals(user)) {
@@ -199,23 +199,23 @@ public class AdminPanel {
 		}
 		return allTweet;
 	}
-	
+
 
 	/** Add child to the currently selected node. */
 	public DefaultMutableTreeNode addObject(Object child) {
-		
+
 		DefaultMutableTreeNode parentNode = null;
 		DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)userTree.getLastSelectedPathComponent();
 		TreePath parentPath = userTree.getSelectionPath();
-		
-		
+
+
 		if (parentPath == null) {
-            parentNode = rootNode;
-        }
-		
+			parentNode = rootNode;
+		}
+
 		else {
 			Object nodeInfo = currentNode.getUserObject();
-			
+
 			//If currently selected is a user, the parent of the node about to be added
 			//will be the current node's parent
 			if (nodeInfo instanceof SingleUser) {
@@ -259,11 +259,11 @@ public class AdminPanel {
 		frmAdminPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAdminPanel.getContentPane().setLayout(null);
 
-		
+
 		User root = new GroupUser("Root"); 
 		userList.add(root);
 		rootNode = new DefaultMutableTreeNode(root);		
-		
+
 		treeModel = new DefaultTreeModel(rootNode);
 		treeModel.addTreeModelListener(new MyTreeModelListener());
 
@@ -413,7 +413,7 @@ public class AdminPanel {
 		lblStat.setBounds(372, 331, 368, 20);
 		frmAdminPanel.getContentPane().add(lblStat);
 	}
-	
+
 	class MyTreeModelListener implements TreeModelListener {
 		public void treeNodesChanged(TreeModelEvent e) {
 			DefaultMutableTreeNode node;
