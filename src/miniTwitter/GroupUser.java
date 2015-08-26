@@ -7,6 +7,7 @@ public class GroupUser implements User {
 
 	private String groupID;
 	private List<User> userList;
+	private List<Tweet> tweetList = new ArrayList<Tweet>();
 	
 	public GroupUser(String groupId) {
 		
@@ -32,9 +33,9 @@ public class GroupUser implements User {
 	}
 
 	@Override
-	public List<TextTweet> getNewsfeed() {
-		// not available for GroupUser
-		return null;
+	public List<Tweet> getNewsfeed() {
+		// return an empty list
+		return tweetList;
 	}
 	
 	public void addUserToGroup(User user) {
@@ -50,21 +51,18 @@ public class GroupUser implements User {
 	}
 
 	@Override
-	public void postTextTweet(TextTweet t) {
+	public void addToNewsfeed(Tweet t) {
 		// not available for GroupUser
-		
 	}
 
 	@Override
 	public void addFollower(User u) {
 		// not available for GroupUser
-		
 	}
 
 	@Override
 	public void followUser(User u) {
 		// not available for GroupUser
-		
 	}
 	
 	@Override
@@ -74,4 +72,20 @@ public class GroupUser implements User {
         return this.groupID.equalsIgnoreCase(group.getID());
     }
 
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.addGroupUser(this);
+		
+	}
+
+	@Override
+	public UserPanel getUserPanel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setUserPanel(UserPanel p) {
+		// not available for GroupUser
+	}
 }

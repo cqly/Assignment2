@@ -1,5 +1,6 @@
 package miniTwitter;
 
-public interface Tweet {
+public interface Tweet extends VisitorElement {
 	
+	public User getUser();
 }

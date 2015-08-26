@@ -32,4 +32,10 @@ public class TextTweet implements Tweet {
 	public String toString() {
 		return time + " @" + user.getID() + ":  " + message;
 	}
+
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.addTotalMessage(this);
+		visitor.addPossitiveTweet(this);
+	}
 }

@@ -2,17 +2,21 @@ package miniTwitter;
 
 import java.util.List;
 
-public interface User {
+public interface User extends VisitorElement {
 	
 	public String getID();
+	
+	public UserPanel getUserPanel();
 
 	public List<User> getFollowers();
 
 	public List<User> getFollowing();
 
-	public List<TextTweet> getNewsfeed(); 
+	public List<Tweet> getNewsfeed();
 	
-	public void postTextTweet(TextTweet t);
+	public void setUserPanel(UserPanel p);
+	
+	public void addToNewsfeed(Tweet t);
 	
 	public void addFollower(User u);
 	

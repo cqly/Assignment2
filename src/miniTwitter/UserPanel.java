@@ -1,13 +1,7 @@
 package miniTwitter;
 
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-import javafx.collections.SetChangeListener;
-
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -18,16 +12,13 @@ import javax.swing.KeyStroke;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import java.awt.Font;
 import java.awt.Color;
 
-public class UserPanel implements Observer {
+public class UserPanel implements miniTwitter.Observer, Subject {
 
 	private JFrame frmUserView;
 	private JTextField txtUser;
@@ -38,32 +29,33 @@ public class UserPanel implements Observer {
 	private JLabel lblMessage;
 	
 	private User currentUser;
-	private UserPanel currentUserPanel;
-	private static List<UserPanel> userPanelList = new ArrayList<UserPanel>();
 	private static List<User> userList = new ArrayList<User>();
 	
-	/**
-	 * Create the application.
-	 */
+
 	private UserPanel(User user) {
 		
 		this.currentUser = user;
-		this.currentUserPanel = this;
 		initialize();
 		frmUserView.setVisible(true);
-		update(null,null);
+		update();
 		updateFollowingPanel();
-		
 	}
-
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void notifyObservers(Tweet tweet) {
+		
+		for (User follower : currentUser.getFollowers()) {
+			follower.addToNewsfeed(tweet);
+			follower.getUserPanel().update();
+		}
+	}
+	
+	@Override
+	public void update() {
 
 		String msg = "";
 		
-
-		for (TextTweet tt : currentUser.getNewsfeed()) {
+		for (Tweet tt : currentUser.getNewsfeed()) {
 			msg += "  " + tt + "\n";
 		}
 
@@ -83,43 +75,26 @@ public class UserPanel implements Observer {
 		
 		if (!userList.contains(user)) {
 			
-			userPanelList.add(new UserPanel(user));
+			user.setUserPanel(new UserPanel(user));
 			userList.add(user);
-			return userPanelList.get(userList.size()-1);
 		}
 		
-		return null;
+		//in the case of GroupUser, it will return null
+		return user.getUserPanel();
 	}
 
-	
-	public UserPanel getCurrentUserPanel() {
-		return currentUserPanel;
-	}
-	
-	public User getCurrentUser() {
-		return currentUser;
-	}
-	
-	public static List<UserPanel> getUserPanelList() {
-		return userPanelList;
-	}
-	
-	
-	public boolean equals(Object o){
-		
-		UserPanel up = (UserPanel) o;
-        return this.currentUser.getID().equalsIgnoreCase(up.getCurrentUser().getID());
-    }
-	
-	
 	private void postTweet() {
 		if (!txtTweet.getText().equalsIgnoreCase("")) {
 			
 			TextTweet tweet = new TextTweet(currentUser, txtTweet.getText());
-			currentUser.postTextTweet(tweet);
+			currentUser.addToNewsfeed(tweet);
 
-			AdminPanel.getInstance().updateUserNewsFeed(currentUser, this, tweet);
+			//update current panel first
+			this.update();
 			txtTweet.setText("");
+			
+			//notify the followers
+			notifyObservers(tweet);
 		}
 	}
 	
@@ -135,10 +110,10 @@ public class UserPanel implements Observer {
 		if (user != null) {
 			currentUser.followUser(user);
 			txtUser.setText("");
-			updateFollowingPanel();
-		}
-
 			
+			//graphically update the following panel
+			this.updateFollowingPanel();
+		}
 	}
 	
 	private SingleUser searchUser(String userId) {
@@ -151,11 +126,9 @@ public class UserPanel implements Observer {
 		if (user.equals(currentUser)) {
 			lblMessage.setText("You cannot follow yourself");
 			return null;
-			
 		}
 		
 		List<User> list = AdminPanel.getInstance().getAllUsers();
-		
 		
 		//check if already follow
 		if (currentUser.getFollowing().contains(user)) {
@@ -163,7 +136,7 @@ public class UserPanel implements Observer {
 			return null;
 		}
 		
-		else if (list.contains(user)) {
+		if (list.contains(user)) {
 			User temp = list.get(list.indexOf(user));
 			
 			//check if it is a GroupUser
@@ -179,12 +152,8 @@ public class UserPanel implements Observer {
 			lblMessage.setText("User doesn't exist");
 			return null;
 		}
-			
 	}
 	
-	
-	
-
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -255,7 +224,7 @@ public class UserPanel implements Observer {
 
 		scrollPane_1.setViewportView(txtAreaFollowing);
 		
-		lblMessage = new JLabel("asdf");
+		lblMessage = new JLabel("");
 		lblMessage.setForeground(Color.RED);
 		lblMessage.setFont(new Font("Trebuchet MS", Font.PLAIN, 15));
 		lblMessage.setBounds(10, 57, 388, 20);
@@ -269,9 +238,7 @@ public class UserPanel implements Observer {
 		txtTweet.setLineWrap(true);
 		KeyStroke k = KeyStroke.getKeyStroke("ENTER");
 		txtTweet.getInputMap().put(k, new AbstractAction () {
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -286,10 +253,7 @@ public class UserPanel implements Observer {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 		    	userList.remove(currentUser);
-		    	userPanelList.remove(currentUserPanel);
-		
 		    }
 		});
 	}
-	
 }
