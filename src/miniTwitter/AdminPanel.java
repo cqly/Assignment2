@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -183,7 +184,17 @@ public class AdminPanel {
 			t.accept(stats);
 		}
 
-		lblStat.setText("Total possitive posts: " + String.valueOf(stats.getTotalPossitiveTweet()));
+
+		DecimalFormat df = new DecimalFormat("#.00");
+		double percent = 0.00;
+		String formattedString = "0";
+		if (stats.getTotalMessages() != 0) {
+			percent = stats.getTotalPossitiveTweet() * 100.0 /stats.getTotalMessages();
+			formattedString = df.format(percent);
+		}		
+		
+		
+		lblStat.setText("Possitive posts: " + formattedString + "%");
 	}
 
 	private List<Tweet> getAllTweets() {
